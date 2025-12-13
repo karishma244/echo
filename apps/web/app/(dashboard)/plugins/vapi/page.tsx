@@ -1,6 +1,6 @@
 const Page = () => {
     return(
-        <p>
+        <p className="ml-50 p-4 text-xl">
          Vapi Plugin
         </p>
     );

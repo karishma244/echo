@@ -1,6 +1,6 @@
 const Page = () => {
     return(
-        <div>
+        <div className="ml-50 p-4 text-xl">
           Integrations
         </div>
     );
