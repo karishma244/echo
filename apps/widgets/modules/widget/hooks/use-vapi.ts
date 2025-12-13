@@ -18,7 +18,7 @@ export const useVapi=()=>{
        useEffect(()=>{
         //only for testing customers will provide their own api keys that s why not added in env file
         //they can create their own agents workflows and their phoen numbers assistants
-         const vapiInstance=new Vapi("173868ce-f15a-4622-a9b4-9e65629e09cc");
+         const vapiInstance=new Vapi("");
          setVapi(vapiInstance);
 
          vapiInstance.on("call-start",()=>{
@@ -65,7 +65,7 @@ export const useVapi=()=>{
         setisConnecting(true);
         if(vapi){
             //only for testing customers can provide their own build assistant ids this is how whitelabeling works
-            vapi.start("673f399c-b12e-482e-a4b4-c64c6ea20b20");
+            vapi.start("");
         }
      }
       const endCall=()=>{
