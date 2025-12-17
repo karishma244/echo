@@ -61,7 +61,7 @@ const createContactSession=useMutation(api.public.contactSessions.create);
       viewportSize:`${window.innerWidth}x${window.innerHeight}`,
       timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,
       timezoneOffset:new Date().getTimezoneOffset(),
-      cookiesEnabled:navigator.cookiesEnabled,
+      cookiesEnabled:navigator.cookieEnabled,
       referrer:document.referrer || "direct",
       currentUrl:window.location.href,
 
