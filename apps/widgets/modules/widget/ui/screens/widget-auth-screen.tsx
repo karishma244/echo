@@ -20,7 +20,7 @@ import { useMutation } from "convex/react";
 import { api } from "@workspace/backend/_generated/api";
 import { Doc } from "@workspace/backend/_generated/dataModel";
 
-import { contactSessionIdAtomFamily, organizationIdAtom } from "../../atoms/widget-atoms";
+import { contactSessionIdAtomFamily, organizationIdAtom, screenAtom } from "../../atoms/widget-atoms";
 import { useAtomValue, useSetAtom } from "jotai";
 
 
@@ -30,10 +30,10 @@ const formSchema=z.object({
   email:z.string().email("Invalid email address"),
 });
 
-///temporary test organizationid before adding state management for that
-const organizationId="123";
+
 
 export const WidgetAuthScreen=()=>{
+  const setScreen=useSetAtom(screenAtom);
   const organizationId=useAtomValue(organizationIdAtom);
   const setContactSessionId=useSetAtom(
     contactSessionIdAtomFamily(organizationId || "")
@@ -55,7 +55,7 @@ const createContactSession=useMutation(api.public.contactSessions.create);
       userAgent:navigator.userAgent,
       language:navigator.language,
       languages:navigator.languages?.join(","),
-      platform:navigator.platform,
+      platform:navigator.platform,    
       vendor:navigator.vendor,
       screenResolution:`${screen.width}x${screen.height}`,
       viewportSize:`${window.innerWidth}x${window.innerHeight}`,
@@ -72,6 +72,7 @@ const createContactSession=useMutation(api.public.contactSessions.create);
       metadata,
     });
     setContactSessionId(contactSessionId);
+    setScreen("selection");
   };
     return(
         <>
