@@ -1,8 +1,70 @@
 import { mutation, query } from "../_generated/server";
 import { ConvexError, v} from "convex/values";
 import { supportAgent } from "../system/ai/agents/supportAgent";
-import { saveMessage } from "@convex-dev/agent";
+import { MessageDoc, saveMessage } from "@convex-dev/agent";
 import { components } from "../_generated/api";
+import { paginationOptsValidator } from "convex/server";
+
+
+///implement getmany function
+export const getMany=query({
+    args:{
+        contactSessionId:v.id("contactSessions"),
+        paginationOpts:paginationOptsValidator,
+    },
+    handler:async(ctx , args)=>{
+       const contactSession=await ctx.db.get(args.contactSessionId);
+        if(!contactSession || contactSession.expiresAt<Date.now()){
+            throw new ConvexError({
+                code:"UNAUTHORIZED",
+                message:"Invalid session",
+            });
+        }
+        //to fetch all the conversatons from db
+        const conversations=await ctx.db
+        .query("conversations")
+        .withIndex("by_contact_session_id",(q)=>
+        q.eq("contactSessionId",args.contactSessionId),
+    )
+    .order("desc")
+    .paginate(args.paginationOpts);     
+    //to tract the last message to see if problem solved or not ew have used pointer to point to all conversations
+    //as we have 24 hrs time of chat so it will not have 100s or 1000s of conversations that 'why 
+    //iski time complexity bhi we should know
+const conversationWithLastMessage=await Promise.all(
+    conversations.page.map(async (conversation)=>{
+        let lastMessage:MessageDoc|null=null;
+
+        const messages=await supportAgent.listMessages(ctx,{
+            threadId:conversation.threadId,
+            paginationOpts:{numItems:1,cursor:null},
+        });
+
+        if(messages.page.length>0){
+            lastMessage=messages.page[0]??null;
+        }
+        return{
+            _id:conversation._id,
+            _creationTime:conversation._creationTime,
+            status:conversation.status,
+            organizationId:conversation.organizationId,
+            threadId:conversation.threadId,
+            lastMessage,
+        };
+    })
+);
+return{
+    ...conversations,
+    page:conversationWithLastMessage,
+};
+    },
+});
+
+
+
+
+
+
 
 
 export const getOne=query({
