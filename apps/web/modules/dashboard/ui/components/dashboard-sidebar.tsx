@@ -82,7 +82,7 @@ export const DashboardSidebar=()=>{
         return pathname.startsWith(url);
     };
     return(
-        <Sidebar className="group" collapsible="icon">
+        <Sidebar className="group"  variant="inset" collapsible="icon">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
