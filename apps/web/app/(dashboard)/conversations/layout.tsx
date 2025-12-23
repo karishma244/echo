@@ -1,4 +1,4 @@
-import { ConversationsLayout } from "@/modules/dashboard/ui/layouts/conversations.layout";
+import { ConversationsLayout } from "@/modules/dashboard/ui/layouts/conversations-layout";
 
 const Layout=({
     children

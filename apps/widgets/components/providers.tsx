@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Provider as JotaiProvider } from "jotai";
+import { Provider  } from "jotai";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 const convex = new ConvexReactClient(
@@ -11,9 +11,9 @@ const convex = new ConvexReactClient(
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ConvexProvider client={convex}>
-      <JotaiProvider>
+      <Provider>
         {children}
-      </JotaiProvider>
+      </Provider>
     </ConvexProvider>
   );
 }

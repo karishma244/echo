@@ -18,9 +18,9 @@ export const ConversationsLayout=({
             </ResizablePanel>
            <ResizableHandle/>
            <ResizablePanel className="h-full w-full" defaultSize={70}>
-            <div className="h-full w-full">
+            
             {children}
-          </div>
+         
            </ResizablePanel>
         </ResizablePanelGroup>
           </div>

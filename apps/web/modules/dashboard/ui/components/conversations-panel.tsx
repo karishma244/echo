@@ -117,7 +117,8 @@ export const ConversationsPanel=()=>{
                 
                 )}
 
-                href={`/conversations/${conversation._id}`}>
+                href={`/conversations/${conversation._id}`}
+            >
 
                 <div
               className={cn(
