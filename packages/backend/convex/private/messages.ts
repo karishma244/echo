@@ -6,7 +6,7 @@ import { supportAgent } from "../system/ai/agents/supportAgent";
 import { paginationOptsValidator } from "convex/server";
 import { saveMessage } from "@convex-dev/agent";
 import {generateText} from "ai";
-import { groq } from "@ai-sdk/groq";
+import { openai } from "@ai-sdk/openai";
 
 export const enhanceResponse=action({
     args:{
@@ -29,7 +29,7 @@ export const enhanceResponse=action({
         });
        }
        const response=await generateText({
-        model:groq("llama-3.3-70b-versatile"),
+        model:openai("gpt-4o-mini"),
         messages:[
             {
                 role:"system",
@@ -86,6 +86,11 @@ export const create=mutation({
                 code:"BAD_REQUEST",
                 message:"Conversation resolved",
             });
+        }
+         if(conversation.status==="unresolved"){
+            await ctx.db.patch(args.conversationId,{
+                status:"escalated",
+            })
         }
        await saveMessage(ctx ,components.agent,{
               threadId:conversation.threadId,
