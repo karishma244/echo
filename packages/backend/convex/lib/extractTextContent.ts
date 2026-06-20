@@ -1,17 +1,18 @@
-import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
 import type { StorageActionWriter } from "convex/server";
 import {assert} from "convex-helpers";
 import { Id } from "../_generated/dataModel";
-import { syncStreams } from "@convex-dev/agent";
-import { mime } from "zod/v4";
+import { google } from "@ai-sdk/google";
+
 
 //create a factory of ai tools we use to extract
-const AI_MODELS = {
-   image:openai.chat("gpt-4o-mini"),
-   pdf:openai.chat("gpt-4o"),
-   html:openai.chat("gpt-4o"),
+
+   const AI_MODELS = {
+  image: google("gemini-2.5-flash"),
+  pdf: google("gemini-2.5-pro"),
+  html: google("gemini-2.5-pro"),
 } as const;
+
 
 const SUPPORTED_IMAGE_TYPES=[
   "image/jpeg",

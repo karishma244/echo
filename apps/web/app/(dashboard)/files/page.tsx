@@ -1,8 +1,6 @@
+import { FilesView } from "@/modules/files/ui/views/files-view";
+
 const Page = () => {
-    return(
-        <div className="h-full w-full p-6 text-xl">
-          Files
-        </div>
-    );
+    return <FilesView/>
 }
 export default Page;

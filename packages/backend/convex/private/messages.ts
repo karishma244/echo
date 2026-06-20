@@ -6,7 +6,7 @@ import { supportAgent } from "../system/ai/agents/supportAgent";
 import { paginationOptsValidator } from "convex/server";
 import { saveMessage } from "@convex-dev/agent";
 import {generateText} from "ai";
-import { openai } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 
 export const enhanceResponse=action({
     args:{
@@ -29,7 +29,7 @@ export const enhanceResponse=action({
         });
        }
        const response=await generateText({
-        model:openai("gpt-4o-mini"),
+        model:google("gemini-2.5-flash"),
         messages:[
             {
                 role:"system",
