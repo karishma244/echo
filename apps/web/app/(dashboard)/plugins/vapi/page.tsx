@@ -1,8 +1,5 @@
+import {VapiView} from "@/modules/plugins/ui/views/vapi-view";
 const Page = () => {
-    return(
-        <p className="h-full w-full p-6 text-xl">
-         Vapi Plugin
-        </p>
-    );
+    return <VapiView />;
 }
 export default Page;
