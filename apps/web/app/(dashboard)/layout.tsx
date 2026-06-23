@@ -8,4 +8,4 @@ const Layout=({children}:{children:React.ReactNode})=>{
       </DashboardLayout>
     );
 };
- export default Layout;
+export default Layout;

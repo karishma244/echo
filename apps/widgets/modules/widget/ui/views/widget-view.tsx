@@ -27,7 +27,7 @@ export const WidgetView=({organizationId}:Props)=>{
         contact:<p> TODO:Contact</p>,
     }
     return(
-        <main className=" min-h-screen min-w-screen flex h-full w-full flex-col overflow-hidden rounded-xl border bg-muted">  
+        <main className=" min-h-screen min-w-screen flex h-full w-full flex-col overflow-y-auto rounded-xl border bg-muted">  
            {screenComponents[screen]}
         </main>
     );
