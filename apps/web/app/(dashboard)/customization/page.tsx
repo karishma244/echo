@@ -1,8 +1,6 @@
+import { CustomizationView } from "@/modules/customization/ui/views/customization-view";
+
 const Page = () => {
-    return(
-        <div className="h-full w-full p-6 text-xl">
-          Customization
-        </div>
-    );
-}
+    return <CustomizationView/>
+};
 export default Page;
