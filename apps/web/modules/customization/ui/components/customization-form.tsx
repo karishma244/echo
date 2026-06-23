@@ -93,7 +93,7 @@ export const CustomizationForm=({
 
 return(
     <Form{...form}>
-        <form >
+        <form  className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
             <Card>
                 <CardHeader>
                     <CardTitle>General Chat Settings </CardTitle>
@@ -216,7 +216,7 @@ return(
                         </CardDescription>
                     
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="mt-6 space-y-4">
                     <VapiFormFields form={form}/>
                 </CardContent>
                 </Card>
