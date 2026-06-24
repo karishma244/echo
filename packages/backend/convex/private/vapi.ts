@@ -22,19 +22,20 @@ export const getAssistants=action({
                              message:"Organization not found",
                          });
                      }
-            const plugin=await ctx.runQuery(
-                internal.system.plugins.getByOrganizationIdAndService,
-                {
-                    organizationId:orgId,
-                    service:"vapi",
-                },
-            );
-            if(!plugin){
-                throw new ConvexError({
-                    code:"NOT_FOUND",
-                    message:"Plugin not found",
-                });
-            }
+                     
+            // const plugin=await ctx.runQuery(
+            //     internal.system.plugins.getByOrganizationIdAndService,
+            //     {
+            //         organizationId:orgId,
+            //         service:"vapi",
+            //     },
+            // );
+            // if(!plugin){
+            //     throw new ConvexError({
+            //         code:"NOT_FOUND",
+            //         message:"Plugin not found",
+            //     });
+            // }
           
         // const secretName=plugin.secretName;
         // const secretValue=await getSecretValue(secretName);
@@ -88,19 +89,19 @@ export const getPhoneNumbers=action({
                              message:"Organization not found",
                          });
                      }
-            const plugin=await ctx.runQuery(
-                internal.system.plugins.getByOrganizationIdAndService,
-                {
-                    organizationId:orgId,
-                    service:"vapi",
-                },
-            );
-            if(!plugin){
-                throw new ConvexError({
-                    code:"NOT_FOUND",
-                    message:"Plugin not found",
-                });
-            }
+            // const plugin=await ctx.runQuery(
+            //     internal.system.plugins.getByOrganizationIdAndService,
+            //     {
+            //         organizationId:orgId,
+            //         service:"vapi",
+            //     },
+            // );
+            // if(!plugin){
+            //     throw new ConvexError({
+            //         code:"NOT_FOUND",
+            //         message:"Plugin not found",
+            //     });
+            // }
           
         // const secretName=plugin.secretName;
         // const secretValue=await getSecretValue(secretName);
