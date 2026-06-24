@@ -1,7 +1,9 @@
 import Vapi from "@vapi-ai/web";
 import { error } from "console";
+import { useAtomValue } from "jotai";
 
 import { useEffect,useState } from "react";
+import { vapiSecretsAtom, widgetSettingsAtom } from "../atoms/widget-atoms";
 
 interface TranscriptMessage{
     role:"user"|"assistant";
@@ -9,6 +11,8 @@ interface TranscriptMessage{
 };
 
 export const useVapi=()=>{
+   const vapiSecrets=useAtomValue(vapiSecretsAtom);
+   const widgetSettings=useAtomValue(widgetSettingsAtom);
     const[vapi,setVapi]=useState<Vapi  | null>(null);
      const[isConnected,setisConnected]=useState(false);
       const[isConnecting,setisConnecting]=useState(false);
@@ -16,9 +20,12 @@ export const useVapi=()=>{
        const[transcript,setTranscript]=useState<TranscriptMessage[]>([]);
        
        useEffect(()=>{
+         if(!vapiSecrets){
+            return;
+         }
         //only for testing customers will provide their own api keys that s why not added in env file
         //they can create their own agents workflows and their phoen numbers assistants
-         const vapiInstance=new Vapi("");
+         const vapiInstance=new Vapi(vapiSecrets.publicApiKey);
          setVapi(vapiInstance);
 
          vapiInstance.on("call-start",()=>{
@@ -61,11 +68,17 @@ export const useVapi=()=>{
 
          
        },[]);
+
      const startCall=()=>{
+      if(!vapiSecrets || !widgetSettings?.vapiSettings?.assistantId){
+         return;
+      }
         setisConnecting(true);
+
+
         if(vapi){
             //only for testing customers can provide their own build assistant ids this is how whitelabeling works
-            vapi.start("");
+            vapi.start(widgetSettings.vapiSettings.assistantId);
         }
      }
       const endCall=()=>{
