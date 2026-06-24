@@ -23,6 +23,7 @@ export const useVapi=()=>{
          if(!vapiSecrets){
             return;
          }
+         console.log("Creating Vapi instance", vapiSecrets);
         //only for testing customers will provide their own api keys that s why not added in env file
         //they can create their own agents workflows and their phoen numbers assistants
          const vapiInstance=new Vapi(vapiSecrets.publicApiKey);
@@ -67,10 +68,14 @@ export const useVapi=()=>{
          }
 
          
-       },[]);
+       },[vapiSecrets]);
 
      const startCall=()=>{
+       console.log("vapiSecrets", vapiSecrets);
+  console.log("assistantId", widgetSettings?.vapiSettings?.assistantId);
+  console.log("vapi", vapi);
       if(!vapiSecrets || !widgetSettings?.vapiSettings?.assistantId){
+         console.log("Missing data");
          return;
       }
         setisConnecting(true);
@@ -79,7 +84,9 @@ export const useVapi=()=>{
         if(vapi){
             //only for testing customers can provide their own build assistant ids this is how whitelabeling works
             vapi.start(widgetSettings.vapiSettings.assistantId);
-        }
+        } else {
+    console.log("Vapi instance null");
+  }
      }
       const endCall=()=>{
         if(vapi){
