@@ -10,7 +10,6 @@ import { extractTextContent } from "../lib/extractTextContent";
 import rag from "../system/ai/rag";
 import { Id } from "../_generated/dataModel";
 import { paginationOptsValidator } from "convex/server";
-import { en } from "zod/v4/locales";
 function guessMimeType(filename:string,bytes:ArrayBuffer):string{
   return(
     guessMimeTypeFromExtension(filename) ||

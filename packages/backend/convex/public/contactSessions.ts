@@ -1,7 +1,9 @@
 import { v } from "convex/values";
 import {mutation} from "../_generated/server";
-//define session duration 24HRS IN MILLISECONDS
-const SESSION_DURATION_MS=24*60*60*1000
+import { SESSION_DURATION_MS } from "../constants";
+
+
+
 export const create=mutation({
     args:{
         name:v.string(),
