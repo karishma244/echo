@@ -73,7 +73,7 @@ const secretData = {
 
 export const getPhoneNumbers=action({
     args:{},
-    handler:async(ctx):Promise<Vapi.ListPhoneNumbersResponseItem[]>=>{
+    handler:async(ctx):Promise<Vapi.PhoneNumbersListResponseItem[]>=>{
          const identity=await ctx.auth.getUserIdentity();
                      if(identity===null){
                          throw new ConvexError({

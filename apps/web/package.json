@@ -15,7 +15,7 @@
     "@clerk/nextjs": "^6.27.1",
     "@convex-dev/agent": "^0.1.16",
     "@hookform/resolvers": "^5.2.0",
-    "@sentry/nextjs": "^9.42.1",
+    "@workspace/math": "workspace:*",
     "@workspace/backend": "workspace:*",
    
     "@workspace/ui": "workspace:*",
