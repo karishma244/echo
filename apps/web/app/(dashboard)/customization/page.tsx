@@ -2,7 +2,6 @@ import {Protect} from "@clerk/nextjs";
 import { PremiumFeatureOverlay } from "@/modules/billing/ui/components/premium-feature-overlay";
 
 import { CustomizationView } from "@/modules/customization/ui/views/customization-view";
-import { FilesView } from "@/modules/files/ui/views/files-view";
 
 const Page = () => {
     return(
