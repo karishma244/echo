@@ -1,0 +1,217 @@
+import { ConvexError, v } from "convex/values";
+import { action, mutation, query } from "../_generated/server";
+import { contentHashFromArrayBuffer, guessMimeTypeFromContents, guessMimeTypeFromExtension, vEntryId, } from "@convex-dev/rag";
+import { extractTextContent } from "../lib/extractTextContent";
+import rag from "../system/ai/rag";
+import { paginationOptsValidator } from "convex/server";
+function guessMimeType(filename, bytes) {
+    return (guessMimeTypeFromExtension(filename) ||
+        guessMimeTypeFromContents(bytes) ||
+        "application/octet-stream");
+}
+;
+//delete file function will be a mutuation// delete embedding 
+export const deleteFile = mutation({
+    args: {
+        entryId: vEntryId,
+    },
+    handler: async (ctx, args) => {
+        //protect ourselves from searching for identity orgis if and all that 
+        const identity = await ctx.auth.getUserIdentity();
+        if (identity === null) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Identity not found",
+            });
+        }
+        const orgId = identity.orgId;
+        if (!orgId) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Organization not found",
+            });
+        }
+        //to delete the embedding file we should have permission to do it and that can be done with namespace because only it knows
+        //the exact org id only the person who added the file has right to delete it
+        const namespace = await rag.getNamespace(ctx, {
+            namespace: orgId,
+        });
+        if (!namespace) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Invalid namespace",
+            });
+        }
+        //if we access then get the entry
+        const entry = await rag.getEntry(ctx, {
+            entryId: args.entryId,
+        });
+        if (!entry) {
+            throw new ConvexError({
+                code: "NOT_FOUND",
+                message: "Entry not found",
+            });
+        }
+        //last/final check by seeing if the entry metadata is uploaded by orgid person or not
+        if (entry.metadata?.uploadedBy !== orgId) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: " Invalid Organization ID",
+            });
+        }
+        if (entry.metadata?.storageId) {
+            await ctx.storage.delete(entry.metadata.storageId);
+        }
+        await rag.deleteAsync(ctx, {
+            entryId: args.entryId
+        });
+    },
+});
+//this is our add file funtion which is action 
+export const addFile = action({
+    args: {
+        filename: v.string(),
+        mimeType: v.string(),
+        bytes: v.bytes(),
+        category: v.optional(v.string()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (identity === null) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Identity not found",
+            });
+        }
+        const orgId = identity.orgId;
+        if (!orgId) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Organization not found",
+            });
+        }
+        const { bytes, filename, category } = args;
+        const mimeType = args.mimeType || guessMimeType(filename, bytes);
+        const blob = new Blob([bytes], { type: mimeType });
+        const storageId = await ctx.storage.store(blob);
+        //extract text content from the file uploaded
+        const text = await extractTextContent(ctx, {
+            storageId,
+            filename,
+            bytes,
+            mimeType,
+        });
+        const { entryId, created } = await rag.add(ctx, {
+            //super important what search space to add this to you cannout search across namespaces,
+            //if not added then it will considered as global
+            //jo jiski org h vo usi ke documnet use realted upload kr skta h or uske accoding ai agent baat krga
+            //will be different for diff org
+            namespace: orgId,
+            text,
+            key: filename,
+            title: filename,
+            metadata: {
+                storageId,
+                uploadedBy: orgId,
+                filename,
+                category: category ?? null,
+            },
+            contentHash: await contentHashFromArrayBuffer(bytes) //to avoid re-inserting if the file content hasn't changed
+        });
+        if (!created) {
+            console.debug("entry already exists,skipping upload metadata");
+            await ctx.storage.delete(storageId);
+        }
+        return {
+            url: await ctx.storage.getUrl(storageId),
+            entryId,
+        };
+    },
+});
+export const list = query({
+    args: {
+        category: v.optional(v.string()),
+        paginationOpts: paginationOptsValidator,
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (identity === null) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Identity not found",
+            });
+        }
+        const orgId = identity.orgId;
+        if (!orgId) {
+            throw new ConvexError({
+                code: "UNAUTHORIZED",
+                message: "Organization not found",
+            });
+        }
+        const namespace = await rag.getNamespace(ctx, {
+            namespace: orgId,
+        });
+        if (!namespace) {
+            return { page: [], isDone: true, continueCursor: "" };
+        }
+        const results = await rag.list(ctx, {
+            namespaceId: namespace.namespaceId,
+            paginationOpts: args.paginationOpts,
+        });
+        const files = await Promise.all(results.page.map((entry) => convertEntryToPublicFile(ctx, entry)));
+        const filteredFiles = args.category
+            ? files.filter((file) => file.category === args.category)
+            : files;
+        return {
+            page: filteredFiles,
+            isDone: results.isDone,
+            continueCursor: results.continueCursor,
+        };
+    },
+});
+async function convertEntryToPublicFile(ctx, entry) {
+    const metadata = entry.metadata;
+    const storageId = metadata?.storageId;
+    let fileSize = "unknown";
+    if (storageId) {
+        try {
+            const storageMetadata = await ctx.db.system.get(storageId);
+            if (storageMetadata) {
+                fileSize = formatFileSize(storageMetadata.size);
+            }
+        }
+        catch (error) {
+            console.error("Failed to get storage metadata:", error);
+        }
+    }
+    const filename = entry.key || "Unknown";
+    const extension = filename.split(".").pop()?.toLowerCase() || "txt";
+    let status = "error";
+    if (entry.status === "ready") {
+        status = "ready";
+    }
+    else if (entry.status === "pending") {
+        status = "processing";
+    }
+    const url = storageId ? await ctx.storage.getUrl(storageId) : null;
+    return {
+        id: entry.entryId,
+        name: filename,
+        type: extension,
+        size: fileSize,
+        status,
+        url,
+        category: metadata?.category || undefined,
+    };
+}
+;
+function formatFileSize(bytes) {
+    if (bytes === 0) {
+        return "0 B";
+    }
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${Number.parseFloat((bytes / k ** i).toFixed(1))} ${sizes[i]}`;
+}
+;
